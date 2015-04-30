@@ -55,6 +55,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="CS390Python.pubxml" />
+    <Content Include="Cs390Python\app.db" />
     <Content Include="Cs390Python\templates\register.html" />
     <Content Include="Cs390Python\templates\login.html" />
     <Content Include="requirements.txt" />
