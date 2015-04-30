@@ -3,8 +3,10 @@ Routes and views for the flask application.
 """
 
 from datetime import datetime
-from flask import render_template
+from flask import render_template, flash, redirect
 from Cs390Python import app
+from Cs390Python import forms
+from Cs390Python.forms import LoginForm
 
 @app.route('/')
 @app.route('/home')
@@ -35,3 +37,16 @@ def about():
         year=datetime.now().year,
         message='Your application description page.'
     )
+
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    """Renders the login page."""
+    form=LoginForm()
+    if form.validate_on_submit():
+        flash('ding dong')
+        return redirect('/')
+    return render_template(
+        'login.html',
+        title='Sign In',
+        form=form
+        )
