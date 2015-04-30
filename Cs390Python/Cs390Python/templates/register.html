@@ -1,0 +1,34 @@
+﻿{% extends "layout.html" %}
+
+{% block content %}
+
+<h2>Register</h2>
+<h3>Fill out the form below to create an account.</h3>
+
+<form action="" method="post" name="register">
+    {{ form.hidden_tag() }}
+
+    {% for error in form.email.errors %}
+    <span style="color: red;">[{{ error }}]</span>
+    {% endfor %}
+    {{ form.email(class='form-control',placeholder='Email Address') }}<br />
+
+    {% for error in form.displayName.errors %}
+    <span style="color: red;">[{{ error }}]</span>
+    {% endfor %}
+    {{ form.displayName(class='form-control',placeholder='Your Name') }}<br />
+
+    {% for error in form.password.errors %}
+    <span style="color: red;">[{{ error }}]</span>
+    {% endfor %}
+    {{ form.password(class='form-control',placeholder='Password') }}<br />
+
+    {% for error in form.confirmPassword.errors %}
+    <span style="color: red;">[{{ error }}]</span>
+    {% endfor %}
+    {{ form.confirmPassword(class='form-control',placeholder='Confirm Password') }}<br />
+
+    <input type="submit" value="Register" class="form-control btn-primary" />
+</form>
+
+{% endblock %}

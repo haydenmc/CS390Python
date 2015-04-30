@@ -21,6 +21,7 @@
     <InterpreterId>{088fa019-ee0f-45ec-86ee-41a50e4aeee8}</InterpreterId>
     <InterpreterVersion>3.4</InterpreterVersion>
     <EnableNativeCodeDebugging>False</EnableNativeCodeDebugging>
+    <NameOfLastUsedPublishProfile>CS390Python</NameOfLastUsedPublishProfile>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
     <DebugSymbols>true</DebugSymbols>
@@ -37,6 +38,9 @@
     <Compile Include="Cs390Python\forms.py">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="Cs390Python\models.py">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="runserver.py" />
     <Compile Include="Cs390Python\__init__.py" />
     <Compile Include="Cs390Python\views.py" />
@@ -50,6 +54,8 @@
     <Folder Include="Cs390Python\templates\" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="CS390Python.pubxml" />
+    <Content Include="Cs390Python\templates\register.html" />
     <Content Include="Cs390Python\templates\login.html" />
     <Content Include="requirements.txt" />
     <Content Include="Cs390Python\static\content\bootstrap.css" />
