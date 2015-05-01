@@ -82,7 +82,7 @@ def me():
     emailPassForm=EmailPassForm()
     if profilePhotoForm.validate_on_submit():
         filename = secure_filename(profilePhotoForm.photo.data.filename)
-        profilePhotoForm.photo.data.save(os.path.join(app.config['UPLOAD_FOLDER'], str(g.user.id) + ".jpg"))
+        profilePhotoForm.photo.data.save(os.path.join(app.config['UPLOAD_FOLDER'], "avatars", str(g.user.id) + ".jpg"))
         profileUser.hasPhoto = True
         db.session.commit()
         flash('Your profile photo has been updated.')
@@ -109,9 +109,9 @@ def me():
 def avatar(userid):
     user=User.query.filter_by(id=userid).first()
     if user.hasPhoto:
-        return send_from_directory(app.config['UPLOAD_FOLDER'], str(g.user.id) + ".jpg")
+        return send_from_directory(os.path.join(app.config['UPLOAD_FOLDER'], "avatars"), str(g.user.id) + ".jpg")
     else:
-        return send_from_directory(app.config['UPLOAD_FOLDER'], "0.jpg")
+        return send_from_directory(os.path.join(app.config['UPLOAD_FOLDER'], "avatars"), "0.jpg")
 
 @app.route('/profile/<userid>')
 @login_required
