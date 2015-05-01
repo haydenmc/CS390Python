@@ -149,11 +149,14 @@ def image(postid):
 @app.route('/profile/<userid>')
 @login_required
 def profile(userid):
+    me=User.query.filter_by(id = g.user.id).first()
     profileUser=User.query.filter_by(id = userid).first()
+    myCircles=me.circles
     return render_template(
         'profile.html',
         title=profileUser.displayName + "'s Profile",
-        profileUser=profileUser
+        profileUser=profileUser,
+        myCircles=myCircles
         )
 
 @app.route('/addfriend/<userid>')
