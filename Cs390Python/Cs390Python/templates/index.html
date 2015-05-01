@@ -18,6 +18,10 @@
                 <span style="color: red;">[{{ error }}]</span>
                 {% endfor %}
                 {{ postForm.photo(class='form-control') }}
+
+                {% for circle in circles %}
+                    <input type="checkbox" name="circle" value="{{ circle.id }}"> {{ circle.name }} <br />
+                {% endfor %}
             </div>
             <input type="submit" value="Post" class="form-control btn-primary" />
         </form>
@@ -29,7 +33,7 @@
 <div class="row" style="margin-top: 32px;">
     <div class="col-md-8 col-md-offset-2">
         <img style="height:96px; float:left; margin-right: 16px;" src="{{ url_for('avatar', userid=post.author.id) }}" />
-        <h3>{{ post.author.displayName }}</h3>
+        <h3><a href="{{ url_for('profile', userid=post.author.id) }}">{{ post.author.displayName }}</a></h3>
         <p>{{ post.body }}</p>
         {% if post.hasPhoto %}
             <img style="max-width:100%; max-height: 480px;" src="{{ url_for('image', postid=post.id) }}" />

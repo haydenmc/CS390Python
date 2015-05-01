@@ -19,7 +19,12 @@
 {% for friendship in friends %}
 <div class="row">
     <div class="col-md-10 col-md-offset-1">
+        <img style="height:96px; float:left; margin-right: 16px;" src="{{ url_for('avatar', userid=friendship.friend.id) }}" />
         <h3>{{ friendship.friend.displayName }}</h3>
+        <br />
+        {% for circle in myCircles %}
+            <a href="{{ url_for('addToCircle', circleid=circle.id, userid=user.id) }}" class="btn btn-primary">Add to {{ circle.name }}</a>
+        {% endfor %}
     </div>
 </div>
 {% endfor %}

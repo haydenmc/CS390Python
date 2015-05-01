@@ -1,7 +1,6 @@
 """
 Routes and views for the flask application.
 """
-
 import os
 import base64
 from datetime import datetime
@@ -29,6 +28,7 @@ def load_user(id):
 def home():
     """Renders the home page."""
     form=NewPostForm()
+    circles = User.query.filter_by(id=g.user.id).first().circles
     if form.validate_on_submit():
         newPost = Post(body=form.body.data, author=g.user, postedTime = datetime.now())
         db.session.add(newPost)
@@ -36,16 +36,22 @@ def home():
         if form.photo.has_file():
             filename = secure_filename(form.photo.data.filename)
             form.photo.data.save(os.path.join(app.config['UPLOAD_FOLDER'], "posts", str(newPost.id) + ".jpg"))
-            changePost = Post.query.filter_by(id = newPost.id).first()
-            changePost.hasPhoto = True
-            db.session.commit()
+            newPost.hasPhoto = True
+        circleValues = request.form.getlist('circle')
+        for circleId in circleValues:
+            circle = Circle.query.filter_by(id=int(circleId)).first()
+            newPost.circles.append(circle)
+        db.session.commit()
+        print(circleValues)
         flash('New post added!')
-    posts=Post.query.order_by('postedTime desc').all()
+    dbUser = User.query.filter_by(id = g.user.id).first()
+    posts=Post.query.filter(Post.circles.any(Circle.members.contains(dbUser))).union(Post.query.filter_by(author_id = dbUser.id)).order_by(Post.postedTime.desc()).all()
     return render_template(
         'index.html',
         title='Home Page',
         postForm=form,
-        posts=posts
+        posts=posts,
+        circles=circles
     )
 
 @app.route('/circle', methods=['GET', 'POST'])
@@ -105,13 +111,16 @@ def removeFromCircle(circleid, userid):
 def friends(): 
     """Renders the friend list."""
     dbUser = User.query.filter_by(id = g.user.id).first()
+    myCircles = dbUser.circles
     friends = dbUser.friends
     friendRequests = dbUser.incomingFriendRequests
     return render_template(
         'friends.html',
         title='Friends',
+        user=dbUser,
         friends=friends,
-        friendRequests=friendRequests
+        friendRequests=friendRequests,
+        myCircles=myCircles
         )
 
 @app.route('/users', methods=['GET', 'POST'])
