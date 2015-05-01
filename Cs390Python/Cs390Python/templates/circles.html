@@ -1,0 +1,33 @@
+{% extends "layout.html" %}
+
+{% block content %}
+
+<h1>Circles</h1>
+<div class="row">
+    <div class="col-md-12">
+        <h2>New Circle</h2>
+        <form action="" method="post" name="newCircleForm">
+            <div class="form-group">
+                {{ newCircleForm.hidden_tag() }}
+                {% for error in newCircleForm.name.errors %}
+                <span style="color: red;">[{{ error }}]</span>
+                {% endfor %}
+                <label for="body">Post Body</label>
+                {{ newCircleForm.name(class='form-control',placeholder='Circle Name') }}<br />
+            </div>
+            <input type="submit" value="Create" class="form-control btn-primary" />
+        </form>
+    </div>
+</div>
+
+{% if circles is not none %}
+    {% for circle in circles %}
+    <div class="row">
+        <div class="col-md-6 col-md-offset-3">
+            <h2>{{ circle.name }}</h2>
+        </div>
+    </div>
+    {% endfor %}
+{% endif %}
+
+{% endblock %}

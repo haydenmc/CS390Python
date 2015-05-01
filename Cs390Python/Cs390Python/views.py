@@ -8,8 +8,8 @@ from datetime import datetime
 from flask import render_template, flash, redirect, g, url_for, request, send_from_directory
 from flask.ext.login import login_user, logout_user, current_user, login_required
 from Cs390Python import app, lm, db
-from Cs390Python.forms import LoginForm, RegisterForm, NewPostForm, UserSearchForm, ProfilePhotoForm, NameInfoForm, EmailPassForm
-from Cs390Python.models import User, Post, Friend, FriendRequest
+from Cs390Python.forms import LoginForm, RegisterForm, NewPostForm, UserSearchForm, ProfilePhotoForm, NameInfoForm, EmailPassForm, NewCircleForm
+from Cs390Python.models import User, Post, Friend, FriendRequest, Circle
 from sqlalchemy import desc
 from werkzeug import secure_filename
 import sendgrid
@@ -47,6 +47,24 @@ def home():
         postForm=form,
         posts=posts
     )
+
+@app.route('/circle', methods=['GET', 'POST'])
+@login_required
+def circle():
+    dbUser = User.query.filter_by(id = g.user.id).first()
+    newCircleForm = NewCircleForm()
+    if newCircleForm.validate_on_submit():
+        newCircle = Circle(name=newCircleForm.name.data, owner_id=dbUser.id)
+        db.session.add(newCircle)
+        db.session.commit()
+        flash('Your circle has been added.')
+    circles = dbUser.circles
+    return render_template(
+        'circles.html',
+        title='Circles',
+        circles=circles,
+        newCircleForm=newCircleForm
+        )
 
 @app.route('/friends')
 @login_required

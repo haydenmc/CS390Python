@@ -60,6 +60,7 @@
     <Content Include="Cs390Python\templates\me.html" />
     <Content Include="Cs390Python\templates\friends.html" />
     <Content Include="Cs390Python\templates\profile.html" />
+    <Content Include="Cs390Python\templates\circles.html" />
     <Content Include="Cs390Python\templates\users.html" />
     <Content Include="Cs390Python\templates\register.html" />
     <Content Include="Cs390Python\templates\login.html" />

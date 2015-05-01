@@ -2,6 +2,16 @@ from Cs390Python import db
 from sqlalchemy import Table, Column, Integer, ForeignKey, Boolean, PrimaryKeyConstraint
 from sqlalchemy.orm import relationship, backref
 
+circle_post = db.Table('circle_post', 
+                       db.Column('circle_id', db.Integer, db.ForeignKey('circle.id')),
+                       db.Column('post_id', db.Integer, db.ForeignKey('post.id'))
+                       )
+
+circle_member = db.Table('circle_member',
+                         db.Column('circle_id', db.Integer, db.ForeignKey('circle.id')),
+                         db.Column('user_id', db.Integer, db.ForeignKey('user.id'))
+                         )
+
 class User(db.Model):
     __tablename__ = 'user'
     id = db.Column(db.Integer, primary_key=True)
@@ -50,8 +60,18 @@ class FriendRequest(db.Model):
     recipient = relationship('User', foreign_keys='FriendRequest.recipient_id', backref="incomingFriendRequests")
 
 class Post(db.Model):
+    __tablename__ = 'post'
     id = db.Column(db.Integer, primary_key=True)
     author_id = db.Column(Integer, ForeignKey('user.id'))
     body = db.Column(db.String(2048))
     postedTime = db.Column(db.DateTime())
     hasPhoto = db.Column(db.Boolean(), default=False)
+
+class Circle(db.Model):
+    __tablename__ = 'circle'
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(255))
+    owner_id = db.Column(Integer, ForeignKey('user.id'))
+    owner = relationship('User', foreign_keys='Circle.owner_id', backref="circles")
+    posts = db.relationship('Post', secondary=circle_post, backref=db.backref('circles'))
+    members = db.relationship('User', secondary=circle_member, backref=db.backref('memberOfCircles'))

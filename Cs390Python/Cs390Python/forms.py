@@ -31,3 +31,6 @@ class EmailPassForm(Form):
     email = StringField('email', validators=[DataRequired(message = "Please fill in all form fields"), Email(message = "Please enter a valid e-mail address")])
     password = PasswordField('password', validators=[DataRequired(), Length(min = 4, message = "Please enter a password of at least 4 characters.")])
     confirmPassword = PasswordField('confirmPassword', validators=[DataRequired(), EqualTo('password', "Your passwords do not match.")])
+
+class NewCircleForm(Form):
+    name = StringField('name', validators=[DataRequired(message = "Please type a name")])
