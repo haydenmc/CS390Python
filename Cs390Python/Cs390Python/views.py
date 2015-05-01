@@ -6,8 +6,9 @@ from datetime import datetime
 from flask import render_template, flash, redirect, g, url_for, request
 from flask.ext.login import login_user, logout_user, current_user, login_required
 from Cs390Python import app, lm, db
-from Cs390Python.forms import LoginForm, RegisterForm
-from Cs390Python.models import User
+from Cs390Python.forms import LoginForm, RegisterForm, NewPostForm
+from Cs390Python.models import User, Post
+from sqlalchemy import desc
 
 @app.before_request
 def before_request():
@@ -17,15 +18,24 @@ def before_request():
 def load_user(id):
     return User.query.get(int(id))
 
-@app.route('/')
-@app.route('/home')
+@app.route('/', methods=['GET', 'POST'])
+@app.route('/home', methods=['GET', 'POST'])
 @login_required
 def home():
     """Renders the home page."""
+    form=NewPostForm()
+    if form.validate_on_submit():
+        newPost = Post(body=form.body.data, author=g.user, postedTime = datetime.now())
+        db.session.add(newPost)
+        db.session.commit()
+        flash('New post added!')
+    posts=Post.query.order_by('postedTime desc').all()
     return render_template(
         'index.html',
         title='Home Page',
         year=datetime.now().year,
+        postForm=form,
+        posts=posts
     )
 
 @app.route('/contact')
@@ -64,7 +74,8 @@ def login():
     return render_template(
         'login.html',
         title='Sign In',
-        form=form
+        form=form,
+        year=datetime.now().year
         )
 
 @app.route('/register', methods=['GET', 'POST'])
@@ -87,4 +98,11 @@ def register():
     return render_template(
         'register.html',
         title='Register',
-        form=form)
+        form=form,
+        year=datetime.now().year)
+
+@app.route('/logout')
+def logout():
+    logout_user()
+    flash('You have been logged out.')
+    return redirect(url_for('login'))
