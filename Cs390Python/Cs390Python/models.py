@@ -10,6 +10,8 @@ class User(db.Model):
     displayName = db.Column(db.String(255))
     posts = relationship("Post", backref="author")
     joinedTime = db.Column(db.DateTime())
+    verificationCode = db.Column(db.String(32))
+    isVerified = db.Column(db.Boolean(), default=False)
 
     def is_authenticated(self):
         return True

@@ -2,6 +2,8 @@
 Routes and views for the flask application.
 """
 
+import os
+import base64
 from datetime import datetime
 from flask import render_template, flash, redirect, g, url_for, request
 from flask.ext.login import login_user, logout_user, current_user, login_required
@@ -9,6 +11,7 @@ from Cs390Python import app, lm, db
 from Cs390Python.forms import LoginForm, RegisterForm, NewPostForm, UserSearchForm
 from Cs390Python.models import User, Post, Friend, FriendRequest
 from sqlalchemy import desc
+import sendgrid
 
 @app.before_request
 def before_request():
@@ -137,8 +140,11 @@ def login():
     if form.validate_on_submit():
         user = User.query.filter_by(email = form.email.data, password = form.password.data).first()
         if user is None:
-            flash('Invalid credentials. Please try again.');
-            return redirect(url_for('login'));
+            flash('Invalid credentials. Please try again.')
+            return redirect(url_for('login'))
+        if not user.isVerified:
+            flash('This account has not yet been activated.')
+            return redirect(url_for('login'))
         login_user(user)
         return redirect(request.args.get('next') or url_for('home'))
     return render_template(
@@ -160,16 +166,36 @@ def register():
         if user is not None:
             flash('This e-mail address is already in use.');
             return redirect(url_for('register'))
-        user = User(email=form.email.data, password=form.password.data, displayName=form.displayName.data)
+        random_string = base64.urlsafe_b64encode(os.urandom(32)).decode('ascii')
+        user = User(email=form.email.data, password=form.password.data, displayName=form.displayName.data, verificationCode=random_string)
         db.session.add(user)
         db.session.commit()
-        flash('Account created successfully. You may now log in.')
+        sg = sendgrid.SendGridClient("mylink", "cs390python")
+        message = sendgrid.Mail()
+        message.add_to(user.email)
+        message.set_from("MyLink <admin@mylink.purdue.io>")
+        message.set_subject("Please verify your account")
+        message.set_text("Hello! Thank you for registering with MyLink.\nPlease click the link below to activate your account.\nhttp://mylink.purdue.io/verify/" + random_string)
+        sg.send(message)
+        flash('Account created successfully. Please check your e-mail to verify the account before logging in.')
         return redirect(url_for('login'))
     return render_template(
         'register.html',
         title='Register',
         form=form,
         year=datetime.now().year)
+
+@app.route('/verify/<verificationCode>')
+def verify(verificationCode):
+    user = User.query.filter_by(verificationCode=verificationCode).first()
+    if (user is None):
+        flash("Verification code is no longer valid.")
+        return redirect(url_for('login'))
+    user.isVerified = True
+    user.verificationCode = ""
+    db.session.commit()
+    flash("Your account has been verified. You may not log in.")
+    return redirect(url_for('login'))
 
 @app.route('/logout')
 def logout():
