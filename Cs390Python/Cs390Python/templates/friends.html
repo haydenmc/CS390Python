@@ -1,0 +1,27 @@
+{% extends "layout.html" %}
+
+{% block content %}
+
+<h1>Friends</h1>
+
+<h2>Friend Requests</h2>
+{% for request in friendRequests %}
+<div class="row">
+    <div class="col-md-10 col-md-offset-1">
+        <h3>{{ request.sender.displayName }}</h3>
+        <a href="{{ url_for('acceptfriend', userid=request.sender.id) }}" class="btn btn-success">Accept</a>
+        <a class="btn btn-danger">Decline</a>
+    </div>
+</div>
+{% endfor %}
+
+<h2>Your Friends</h2>
+{% for friendship in friends %}
+<div class="row">
+    <div class="col-md-10 col-md-offset-1">
+        <h3>{{ friendship.friend.displayName }}</h3>
+    </div>
+</div>
+{% endfor %}
+
+{% endblock %}

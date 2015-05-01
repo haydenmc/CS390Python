@@ -1,0 +1,36 @@
+{% extends "layout.html" %}
+
+{% block content %}
+
+<h1>People</h1>
+
+<div class="row">
+    <div class="col-md-12">
+        <h2>Search For People</h2>
+        <form action="" method="post" name="userSearch">
+            <div class="form-group">
+                {{ userSearchForm.hidden_tag() }}
+                {% for error in userSearchForm.name.errors %}
+                <span style="color: red;">[{{ error }}]</span>
+                {% endfor %}
+                <label for="body">Name</label>
+                {{ userSearchForm.name(class='form-control',placeholder='Name') }}<br />
+            </div>
+            <input type="submit" value="Search" class="form-control btn-primary" />
+        </form>
+    </div>
+</div>
+
+{% if results is not none %}
+    <h2>Search Results</h2>
+    {% for result in results %}
+    <div class="row">
+        <div class="col-md-10 col-md-offset-1">
+            <h3>{{ result.displayName }}</h3>
+            <a class="btn btn-primary" href="{{ url_for('profile', userid=result.id) }}">View Profile</a>
+        </div>
+    </div>
+    {% endfor %}
+{% endif %}
+
+{% endblock %}

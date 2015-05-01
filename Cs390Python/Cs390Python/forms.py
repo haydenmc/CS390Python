@@ -9,8 +9,11 @@ class LoginForm(Form):
 class RegisterForm(Form):
     email = StringField('email', validators=[DataRequired(message = "Please fill in all form fields"), Email(message = "Please enter a valid e-mail address")])
     displayName = StringField('displayName', validators=[DataRequired()])
-    password = StringField('password', validators=[DataRequired(), Length(min = 4, message = "Please enter a password of at least 4 characters.")])
-    confirmPassword = StringField('confirmPassword', validators=[DataRequired(), EqualTo('password', "Your passwords do not match.")])
+    password = PasswordField('password', validators=[DataRequired(), Length(min = 4, message = "Please enter a password of at least 4 characters.")])
+    confirmPassword = PasswordField('confirmPassword', validators=[DataRequired(), EqualTo('password', "Your passwords do not match.")])
 
 class NewPostForm(Form):
     body = StringField('body', validators=[DataRequired(message = "Please type a message to post")])
+
+class UserSearchForm(Form):
+    name = StringField('name', validators=[DataRequired(message = "Please type a user's name to search")])
