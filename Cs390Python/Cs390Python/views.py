@@ -33,6 +33,12 @@ def home():
         newPost = Post(body=form.body.data, author=g.user, postedTime = datetime.now())
         db.session.add(newPost)
         db.session.commit()
+        if form.photo.has_file():
+            filename = secure_filename(form.photo.data.filename)
+            form.photo.data.save(os.path.join(app.config['UPLOAD_FOLDER'], "posts", str(newPost.id) + ".jpg"))
+            changePost = Post.query.filter_by(id = newPost.id).first()
+            changePost.hasPhoto = True
+            db.session.commit()
         flash('New post added!')
     posts=Post.query.order_by('postedTime desc').all()
     return render_template(
@@ -112,6 +118,15 @@ def avatar(userid):
         return send_from_directory(os.path.join(app.config['UPLOAD_FOLDER'], "avatars"), str(g.user.id) + ".jpg")
     else:
         return send_from_directory(os.path.join(app.config['UPLOAD_FOLDER'], "avatars"), "0.jpg")
+
+@app.route('/image/<postid>')
+@login_required
+def image(postid):
+    post=Post.query.filter_by(id=postid).first()
+    if post.hasPhoto:
+        return send_from_directory(os.path.join(app.config['UPLOAD_FOLDER'], "posts"), str(post.id) + ".jpg")
+    else:
+        return ""
 
 @app.route('/profile/<userid>')
 @login_required

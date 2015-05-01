@@ -54,4 +54,4 @@ class Post(db.Model):
     author_id = db.Column(Integer, ForeignKey('user.id'))
     body = db.Column(db.String(2048))
     postedTime = db.Column(db.DateTime())
-
+    hasPhoto = db.Column(db.Boolean(), default=False)

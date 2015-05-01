@@ -5,7 +5,7 @@
 <div class="row">
     <div class="col-md-12">
         <h2>New Post</h2>
-        <form action="" method="post" name="newPost">
+        <form action="" method="post" name="newPost" enctype="multipart/form-data">
             <div class="form-group">
                 {{ postForm.hidden_tag() }}
                 {% for error in postForm.body.errors %}
@@ -13,6 +13,11 @@
                 {% endfor %}
                 <label for="body">Post Body</label>
                 {{ postForm.body(class='form-control',placeholder='Post content') }}<br />
+
+                {% for error in postForm.photo.errors %}
+                <span style="color: red;">[{{ error }}]</span>
+                {% endfor %}
+                {{ postForm.photo(class='form-control') }}
             </div>
             <input type="submit" value="Post" class="form-control btn-primary" />
         </form>
@@ -26,6 +31,9 @@
         <img style="height:96px; float:left; margin-right: 16px;" src="{{ url_for('avatar', userid=post.author.id) }}" />
         <h3>{{ post.author.displayName }}</h3>
         <p>{{ post.body }}</p>
+        {% if post.hasPhoto %}
+            <img style="max-width:100%; max-height: 480px;" src="{{ url_for('image', postid=post.id) }}" />
+        {% endif %}
     </div>
 </div>
 {% endfor %}

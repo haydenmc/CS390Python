@@ -16,7 +16,7 @@ class RegisterForm(Form):
 
 class NewPostForm(Form):
     body = StringField('body', validators=[DataRequired(message = "Please type a message to post")])
-    photo = FileField('photo', validators=[FileRequired(message = "Please select a photo"), FileAllowed(['jpg'], 'Only jpeg images are allowed')])
+    photo = FileField('photo', validators=[FileAllowed(['jpg'], 'Only jpeg images are allowed')])
 
 class UserSearchForm(Form):
     name = StringField('name', validators=[DataRequired(message = "Please type a user's name to search")])
