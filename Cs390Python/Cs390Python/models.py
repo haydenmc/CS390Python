@@ -12,6 +12,7 @@ class User(db.Model):
     joinedTime = db.Column(db.DateTime())
     verificationCode = db.Column(db.String(32))
     isVerified = db.Column(db.Boolean(), default=False)
+    hasPhoto = db.Column(db.Boolean(), default=False)
 
     def is_authenticated(self):
         return True

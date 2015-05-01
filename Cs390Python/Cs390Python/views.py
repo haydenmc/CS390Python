@@ -5,17 +5,19 @@ Routes and views for the flask application.
 import os
 import base64
 from datetime import datetime
-from flask import render_template, flash, redirect, g, url_for, request
+from flask import render_template, flash, redirect, g, url_for, request, send_from_directory
 from flask.ext.login import login_user, logout_user, current_user, login_required
 from Cs390Python import app, lm, db
-from Cs390Python.forms import LoginForm, RegisterForm, NewPostForm, UserSearchForm
+from Cs390Python.forms import LoginForm, RegisterForm, NewPostForm, UserSearchForm, ProfilePhotoForm, NameInfoForm, EmailPassForm
 from Cs390Python.models import User, Post, Friend, FriendRequest
 from sqlalchemy import desc
+from werkzeug import secure_filename
 import sendgrid
 
 @app.before_request
 def before_request():
     g.user = current_user
+    g.year = datetime.now().year
 
 @lm.user_loader
 def load_user(id):
@@ -36,7 +38,6 @@ def home():
     return render_template(
         'index.html',
         title='Home Page',
-        year=datetime.now().year,
         postForm=form,
         posts=posts
     )
@@ -51,7 +52,6 @@ def friends():
     return render_template(
         'friends.html',
         title='Friends',
-        year=datetime.now().year,
         friends=friends,
         friendRequests=friendRequests
         )
@@ -69,12 +69,52 @@ def users():
     return render_template(
         'users.html',
         title='Users',
-        year=datetime.now().year,
         userSearchForm=userSearchForm,
         results=results
         )
 
+@app.route('/me', methods=['GET', 'POST'])
+@login_required
+def me():
+    profileUser=User.query.filter_by(id = g.user.id).first()
+    profilePhotoForm=ProfilePhotoForm()
+    nameInfoForm=NameInfoForm()
+    emailPassForm=EmailPassForm()
+    if profilePhotoForm.validate_on_submit():
+        filename = secure_filename(profilePhotoForm.photo.data.filename)
+        profilePhotoForm.photo.data.save(os.path.join(app.config['UPLOAD_FOLDER'], str(g.user.id) + ".jpg"))
+        profileUser.hasPhoto = True
+        db.session.commit()
+        flash('Your profile photo has been updated.')
+    else:
+        filename = None
+    if nameInfoForm.validate_on_submit():
+        profileUser.displayName = nameInfoForm.name.data
+        db.session.commit()
+        flash('Your name has been changed.')
+    if emailPassForm.validate_on_submit():
+        profileUser.email = emailPassForm.email.data
+        profileUser.password = emailPassForm.password.data
+        flash('Your email and password have been set.')
+    return render_template(
+        'me.html',
+        title=g.user.displayName,
+        profilePhotoForm=profilePhotoForm,
+        nameInfoForm=nameInfoForm,
+        emailPassForm=emailPassForm
+        )
+
+@app.route('/avatar/<userid>')
+@login_required
+def avatar(userid):
+    user=User.query.filter_by(id=userid).first()
+    if user.hasPhoto:
+        return send_from_directory(app.config['UPLOAD_FOLDER'], str(g.user.id) + ".jpg")
+    else:
+        return send_from_directory(app.config['UPLOAD_FOLDER'], "0.jpg")
+
 @app.route('/profile/<userid>')
+@login_required
 def profile(userid):
     profileUser=User.query.filter_by(id = userid).first()
     return render_template(
@@ -84,6 +124,7 @@ def profile(userid):
         )
 
 @app.route('/addfriend/<userid>')
+@login_required
 def addfriend(userid):
     addedUser=User.query.filter_by(id = userid).first()
     check=FriendRequest.query.filter_by(sender_id=g.user.id, recipient_id=addedUser.id).first()
@@ -97,6 +138,7 @@ def addfriend(userid):
     return redirect(url_for('friends'))
 
 @app.route('/acceptfriend/<userid>')
+@login_required
 def acceptfriend(userid):
     request=FriendRequest.query.filter_by(sender_id=userid, recipient_id=g.user.id).first()
     if request is None:
@@ -110,26 +152,6 @@ def acceptfriend(userid):
     db.session.commit()
     flash(request.sender.displayName + " has been added as your friend.")
     return redirect(url_for('friends'))
-
-@app.route('/contact')
-def contact():
-    """Renders the contact page."""
-    return render_template(
-        'contact.html',
-        title='Contact',
-        year=datetime.now().year,
-        message='Your contact page.'
-    )
-
-@app.route('/about')
-def about():
-    """Renders the about page."""
-    return render_template(
-        'about.html',
-        title='About',
-        year=datetime.now().year,
-        message='Your application description page.'
-    )
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
@@ -151,7 +173,6 @@ def login():
         'login.html',
         title='Sign In',
         form=form,
-        year=datetime.now().year
         )
 
 @app.route('/register', methods=['GET', 'POST'])
@@ -168,22 +189,23 @@ def register():
             return redirect(url_for('register'))
         random_string = base64.urlsafe_b64encode(os.urandom(32)).decode('ascii')
         user = User(email=form.email.data, password=form.password.data, displayName=form.displayName.data, verificationCode=random_string)
+        user.isVerified = True # Remove for demo
         db.session.add(user)
         db.session.commit()
-        sg = sendgrid.SendGridClient("mylink", "cs390python")
-        message = sendgrid.Mail()
-        message.add_to(user.email)
-        message.set_from("MyLink <admin@mylink.purdue.io>")
-        message.set_subject("Please verify your account")
-        message.set_text("Hello! Thank you for registering with MyLink.\nPlease click the link below to activate your account.\nhttp://mylink.purdue.io/verify/" + random_string)
-        sg.send(message)
+        #sg = sendgrid.SendGridClient("mylink", "cs390python")
+        #message = sendgrid.Mail()
+        #message.add_to(user.email)
+        #message.set_from("MyLink <admin@mylink.purdue.io>")
+        #message.set_subject("Please verify your account")
+        #message.set_text("Hello! Thank you for registering with MyLink.\nPlease click the link below to activate your account.\nhttp://mylink.purdue.io/verify/" + random_string)
+        #sg.send(message)
         flash('Account created successfully. Please check your e-mail to verify the account before logging in.')
         return redirect(url_for('login'))
     return render_template(
         'register.html',
         title='Register',
         form=form,
-        year=datetime.now().year)
+        )
 
 @app.route('/verify/<verificationCode>')
 def verify(verificationCode):
@@ -194,7 +216,7 @@ def verify(verificationCode):
     user.isVerified = True
     user.verificationCode = ""
     db.session.commit()
-    flash("Your account has been verified. You may not log in.")
+    flash("Your account has been verified. Please log in.")
     return redirect(url_for('login'))
 
 @app.route('/logout')

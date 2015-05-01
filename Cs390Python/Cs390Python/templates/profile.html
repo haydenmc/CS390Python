@@ -1,8 +1,10 @@
 {% extends "layout.html" %}
 
 {% block content %}
-
-<h1>{{ profileUser.displayName }}'s Profile</h1>
-<a href="{{ url_for('addfriend', userid=profileUser.id) }}" class="btn btn-success">Add Friend</a>
+<div class="row">
+    <img style="height:192px; float:left; margin-right: 16px;" src="{{ url_for('avatar', userid=profileUser.id) }}" />
+    <h1>{{ profileUser.displayName }}'s Profile</h1>
+    <a href="{{ url_for('addfriend', userid=profileUser.id) }}" class="btn btn-success">Add Friend</a>
+</div>
 
 {% endblock %}

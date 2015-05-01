@@ -1,0 +1,59 @@
+{% extends "layout.html" %}
+
+{% block content %}
+
+<h1>{{ g.user.displayName }}</h1>
+<div class="row">
+    <div class="col-md-4">
+        <h3>Profile photo</h3>
+        <img style="width:128px;" src="{{ url_for('avatar', userid=g.user.id) }}" />
+        <form action="" method="POST" enctype="multipart/form-data">
+            {{ profilePhotoForm.hidden_tag() }}
+
+            {% for error in profilePhotoForm.photo.errors %}
+            <span style="color: red;">[{{ error }}]</span>
+            {% endfor %}
+            {{ profilePhotoForm.photo(class='form-control') }}
+
+            <input class="btn btn-primary form-control" type="submit" value="Upload" />
+        </form>
+    </div>
+    <div class="col-md-4">
+        <h3>Name + Info</h3>
+        <form action="" method="post">
+            {{ nameInfoForm.hidden_tag() }}
+
+            {% for error in nameInfoForm.name.errors %}
+            <span style="color: red;">[{{ error }}]</span>
+            {% endfor %}
+            {{ nameInfoForm.name(class='form-control',placeholder='Name',value=g.user.displayName) }}
+            <input class="btn btn-primary form-control" type="submit" value="Change" />
+        </form>
+    </div>
+    <div class="col-md-4">
+        <h3>Email + Password</h3>
+        <form action="" method="post" name="emailPassForm">
+            {{ emailPassForm.hidden_tag() }}
+
+            {% for error in emailPassForm.email.errors %}
+            <span style="color: red;">[{{ error }}]</span>
+            {% endfor %}
+            {{ emailPassForm.email(class='form-control',placeholder='e-mail address',value=g.user.email) }}
+
+            {% for error in emailPassForm.password.errors %}
+            <span style="color: red;">[{{ error }}]</span>
+            {% endfor %}
+            {{ emailPassForm.password(class='form-control',placeholder='new password') }}
+
+            {% for error in emailPassForm.confirmPassword.errors %}
+            <span style="color: red;">[{{ error }}]</span>
+            {% endfor %}
+            {{ emailPassForm.confirmPassword(class='form-control',placeholder='confirm password') }}
+
+            <input class="btn btn-primary form-control" type="submit" value="Change" />
+        </form>
+    </div>
+</div>
+
+
+{% endblock %}

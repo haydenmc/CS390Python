@@ -47,6 +47,7 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Cs390Python\" />
+    <Folder Include="Cs390Python\uploads\" />
     <Folder Include="Cs390Python\static\" />
     <Folder Include="Cs390Python\static\content\" />
     <Folder Include="Cs390Python\static\fonts\" />
@@ -56,6 +57,7 @@
   <ItemGroup>
     <None Include="CS390Python.pubxml" />
     <Content Include="Cs390Python\app.db" />
+    <Content Include="Cs390Python\templates\me.html" />
     <Content Include="Cs390Python\templates\friends.html" />
     <Content Include="Cs390Python\templates\profile.html" />
     <Content Include="Cs390Python\templates\users.html" />
