@@ -28,7 +28,7 @@
             {% for member in circle.members %}
             <div style="width:100%; ">
                 {{ member.displayName }}
-                <a class="btn btn-danger">Remove</a>
+                <a href="{{ url_for('removeFromCircle', circleid=circle.id, userid=member.id) }}" class="btn btn-danger">Remove</a>
             </div>
             {% endfor %}
         </div>

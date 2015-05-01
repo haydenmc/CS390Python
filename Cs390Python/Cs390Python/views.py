@@ -66,6 +66,40 @@ def circle():
         newCircleForm=newCircleForm
         )
 
+@app.route('/circle/<circleid>/add/<userid>')
+@login_required
+def addToCircle(circleid, userid):
+    userToAdd = User.query.filter_by(id = userid).first()
+    dbUser = User.query.filter_by(id = g.user.id).first()
+    if (userToAdd is None):
+        flash('Specified user could not be found')
+        return redirect(url_for('circle'))
+    circle = Circle.query.filter_by(id = circleid).first()
+    if (circle is None):
+        flash('Specified circle could not be found')
+        return redirect(url_for('circle'))
+    circle.members.append(userToAdd)
+    db.session.commit()
+    flash('User added to ' + circle.name)
+    return redirect(url_for('circle'))
+
+@app.route('/circle/<circleid>/remove/<userid>')
+@login_required
+def removeFromCircle(circleid, userid):
+    userToRemove = User.query.filter_by(id = userid).first()
+    dbUser = User.query.filter_by(id = g.user.id).first()
+    if (userToRemove is None):
+        flash('Specified user could not be found')
+        return redirect(url_for('circle'))
+    circle = Circle.query.filter_by(id = circleid).first()
+    if (circle is None):
+        flash('Specified circle could not be found')
+        return redirect(url_for('circle'))
+    circle.members.remove(userToRemove)
+    db.session.commit()
+    flash('User removed from ' + circle.name)
+    return redirect(url_for('circle'))
+
 @app.route('/friends')
 @login_required
 def friends(): 
