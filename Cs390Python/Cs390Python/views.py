@@ -216,6 +216,23 @@ def addfriend(userid):
     flash("Your friend request has been sent.");
     return redirect(url_for('friends'))
 
+@app.route('/removefriend/<userid>')
+@login_required
+def removeFriend(userid):
+    toRemove=User.query.filter_by(id=userid).first()
+    me=User.query.filter_by(id=g.user.id).first()
+    me.friends.remove(toRemove);
+    toRemove.friends.remove(me);
+    circles=Circle.query.filter_by(owner = me).filter(Circle.any(Circle.members.contains(toRemove))).all()
+    for circle in circles:
+        circle.members.remove(toRemove)
+    circles=Circle.query.filter_by(owner = toRemove).filter(Circle.any(Circle.members.contains(me))).all()
+    for circle in circles:
+        circle.members.remove(toRemove)
+    db.session.commit()
+    flash(toRemove.displayName + ' has been un-friended.')
+    return redirect(url_for('friends'))
+
 @app.route('/acceptfriend/<userid>')
 @login_required
 def acceptfriend(userid):

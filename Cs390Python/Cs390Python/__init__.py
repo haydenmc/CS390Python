@@ -22,4 +22,4 @@ import Cs390Python.views
 import Cs390Python.models
 import Cs390Python.forms
 
-#db.create_all()
+db.create_all()
