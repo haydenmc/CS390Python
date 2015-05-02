@@ -53,6 +53,8 @@
     <Folder Include="Cs390Python\static\fonts\" />
     <Folder Include="Cs390Python\static\scripts\" />
     <Folder Include="Cs390Python\templates\" />
+    <Folder Include="Cs390Python\uploads\avatars\" />
+    <Folder Include="Cs390Python\uploads\posts\" />
   </ItemGroup>
   <ItemGroup>
     <None Include="CS390Python.pubxml" />
@@ -64,6 +66,8 @@
     <Content Include="Cs390Python\templates\users.html" />
     <Content Include="Cs390Python\templates\register.html" />
     <Content Include="Cs390Python\templates\login.html" />
+    <Content Include="Cs390Python\uploads\avatars\0.jpg" />
+    <Content Include="Cs390Python\uploads\posts\directory.txt" />
     <Content Include="requirements.txt" />
     <Content Include="Cs390Python\static\content\bootstrap.css" />
     <Content Include="Cs390Python\static\content\bootstrap.min.css" />

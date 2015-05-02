@@ -24,7 +24,7 @@
         <a class="btn btn-danger" href="{{ url_for('removeFriend', userid=friendship.friend.id) }}">Remove</a>
         <br />
         {% for circle in myCircles %}
-            <a href="{{ url_for('addToCircle', circleid=circle.id, userid=user.id) }}" class="btn btn-primary">Add to {{ circle.name }}</a>
+            <a href="{{ url_for('addToCircle', circleid=circle.id, userid=friendship.friend.id) }}" class="btn btn-primary">Add to {{ circle.name }}</a>
         {% endfor %}
     </div>
 </div>

@@ -45,7 +45,11 @@ def home():
         print(circleValues)
         flash('New post added!')
     dbUser = User.query.filter_by(id = g.user.id).first()
-    posts=Post.query.filter(Post.circles.any(Circle.members.contains(dbUser))).union(Post.query.filter_by(author_id = dbUser.id)).order_by(Post.postedTime.desc()).all()
+    #posts=Post.query.filter(Post.circles.any().all()
+    print("User is a member of : ")
+    for c in Circle.query.filter(Circle.members.any(id = dbUser.id)).all():
+        print(c.id)
+    posts=Post.query.filter(Post.circles.any(Circle.members.any(id = dbUser.id))).union(Post.query.filter_by(author_id = dbUser.id)).order_by(Post.postedTime.desc()).all()
     return render_template(
         'index.html',
         title='Home Page',
@@ -132,7 +136,7 @@ def users():
     if userSearchForm.validate_on_submit():
         results = User.query.filter(User.displayName.like("%" + userSearchForm.name.data + "%")).all()
         if results is None:
-            flash('Could not find any users matching your search.');
+            flash('Could not find any users matching your search.')
     return render_template(
         'users.html',
         title='Users',
@@ -213,7 +217,7 @@ def addfriend(userid):
     newRequest=FriendRequest(sender_id=g.user.id, recipient_id=addedUser.id)
     db.session.add(newRequest)
     db.session.commit()
-    flash("Your friend request has been sent.");
+    flash("Your friend request has been sent.")
     return redirect(url_for('friends'))
 
 @app.route('/removefriend/<userid>')
@@ -221,14 +225,17 @@ def addfriend(userid):
 def removeFriend(userid):
     toRemove=User.query.filter_by(id=userid).first()
     me=User.query.filter_by(id=g.user.id).first()
-    me.friends.remove(toRemove);
-    toRemove.friends.remove(me);
-    circles=Circle.query.filter_by(owner = me).filter(Circle.any(Circle.members.contains(toRemove))).all()
-    for circle in circles:
-        circle.members.remove(toRemove)
-    circles=Circle.query.filter_by(owner = toRemove).filter(Circle.any(Circle.members.contains(me))).all()
-    for circle in circles:
-        circle.members.remove(toRemove)
+    friendOne = Friend.query.filter_by(user_id=toRemove.id, friend_id=me.id).first()
+    friendTwo = Friend.query.filter_by(user_id=me.id, friend_id=toRemove.id).first()
+    
+    db.session.delete(friendOne)
+    db.session.delete(friendTwo)
+    #for circle in me.memberOfCircles:
+    #    if (circle.members.contains(toRemove)):
+    #        circle.members.remove(toRemove)
+    #for circle in toRemove.memberOfCircles:
+    #    if (circle.members.contains(me)):
+    #        circle.members.remove(toRemove)
     db.session.commit()
     flash(toRemove.displayName + ' has been un-friended.')
     return redirect(url_for('friends'))
@@ -281,20 +288,20 @@ def register():
         # Check if user exists...
         user = User.query.filter_by(email=form.email.data).first()
         if user is not None:
-            flash('This e-mail address is already in use.');
+            flash('This e-mail address is already in use.')
             return redirect(url_for('register'))
         random_string = base64.urlsafe_b64encode(os.urandom(32)).decode('ascii')
         user = User(email=form.email.data, password=form.password.data, displayName=form.displayName.data, verificationCode=random_string)
         user.isVerified = True # Remove for demo
         db.session.add(user)
         db.session.commit()
-        #sg = sendgrid.SendGridClient("mylink", "cs390python")
-        #message = sendgrid.Mail()
-        #message.add_to(user.email)
-        #message.set_from("MyLink <admin@mylink.purdue.io>")
-        #message.set_subject("Please verify your account")
-        #message.set_text("Hello! Thank you for registering with MyLink.\nPlease click the link below to activate your account.\nhttp://mylink.purdue.io/verify/" + random_string)
-        #sg.send(message)
+        sg = sendgrid.SendGridClient("mylink", "cs390python")
+        message = sendgrid.Mail()
+        message.add_to(user.email)
+        message.set_from("MyLink <admin@mylink.purdue.io>")
+        message.set_subject("Please verify your account")
+        message.set_text("Hello! Thank you for registering with MyLink.\nPlease click the link below to activate your account.\nhttp://mylink.purdue.io/verify/" + random_string)
+        sg.send(message)
         flash('Account created successfully. Please check your e-mail to verify the account before logging in.')
         return redirect(url_for('login'))
     return render_template(
